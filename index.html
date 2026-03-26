@@ -326,37 +326,48 @@ function B(mat,w,h,d,x,y,z){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),
 function C(mat,rt,rb,h,sg,x,y,z){const m=new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,sg),mat);m.position.set(x,y,z);scene.add(m);return m;}
 
 function buildMap(){
-  B(MAT.sand,500,.2,500,0,0,0);
-  [[-30,-20],[25,15],[-10,35],[40,-30],[-45,10],[15,-45]].forEach(([x,z])=>B(MAT.sand2,16,.07,12,x,.05,z));
-  B(MAT.road,8,.1,220,0,.05,0);B(MAT.road,220,.1,8,0,.05,0);
-  B(MAT.road,6,.1,100,-42,.05,7);B(MAT.road,6,.1,100,42,.05,-7);
-  B(MAT.road,100,.1,6,7,.05,42);B(MAT.road,100,.1,6,-7,.05,-42);
-  B(MAT.side,1.5,.07,220,4.8,.04,0);B(MAT.side,1.5,.07,220,-4.8,.04,0);
-  B(MAT.side,220,.07,1.5,0,.04,4.8);B(MAT.side,220,.07,1.5,0,.04,-4.8);
+  // Boden tiefer gelegt um z-fighting zu vermeiden
+  B(MAT.sand,500,.4,500,0,-0.2,0);
+  [[-30,-20],[25,15],[-10,35],[40,-30],[-45,10],[15,-45]].forEach(([x,z])=>B(MAT.sand2,16,.06,12,x,.02,z));
+  // Strassen leicht erhoeht
+  B(MAT.road,8,.12,220,0,.06,0);B(MAT.road,220,.12,8,0,.06,0);
+  B(MAT.road,6,.12,100,-42,.06,7);B(MAT.road,6,.12,100,42,.06,-7);
+  B(MAT.road,100,.12,6,7,.06,42);B(MAT.road,100,.12,6,-7,.06,-42);
+  B(MAT.side,1.5,.08,220,4.8,.1,0);B(MAT.side,1.5,.08,220,-4.8,.1,0);
+  B(MAT.side,220,.08,1.5,0,.1,4.8);B(MAT.side,220,.08,1.5,0,.1,-4.8);
   let bi=0;
   function bld(cx,cz,bw,bd,fl,lit){
     const wm=MAT.w[bi%4],rm=MAT.roof[bi%2],win=lit?MAT.winL:MAT.win;bi++;
     const H=3.2,tH=fl*H;
     B(wm,bw,tH,bd,cx,tH/2,cz);if(fl>1)B(MAT.slab,bw+.1,.1,bd+.1,cx,H,cz);
-    B(rm,bw+.4,.3,bd+.4,cx,tH+.15,cz);
+    B(rm,bw+.4,.4,bd+.4,cx,tH+.2,cz);
     const wc=Math.min(3,Math.floor(bw/2.5));
     for(let f=0;f<fl;f++){const wy=f*H+1.9;for(let i=0;i<wc;i++){const wx=cx-bw/2+bw/(wc+1)*(i+1);B(win,.78,1,.07,wx,wy,cz+bd/2+.04);B(win,.78,1,.07,wx,wy,cz-bd/2-.04);}}
-    B(MAT.door,1.1,2.1,.1,cx,1.05,cz+bd/2+.05);WALLS.push({cx,cz,hw:bw/2,hd:bd/2});
+    B(MAT.door,1.1,2.1,.1,cx,1.05,cz+bd/2+.05);
+    WALLS.push({cx,cz,hw:bw/2,hd:bd/2});
   }
   bld(-22,-22,8,7,2,false);bld(22,-22,6,6,2,true);bld(-22,22,7,8,2,false);bld(22,22,8,7,1,true);
   bld(-42,0,7,6,2,false);bld(42,0,6,7,2,true);bld(0,-42,8,6,1,false);bld(0,42,6,8,2,true);
   bld(-35,-42,5,5,1,false);bld(35,42,5,5,1,true);bld(55,-22,7,6,1,false);bld(-55,22,6,5,2,true);
   bld(0,-70,16,12,2,false);bld(55,22,6,6,1,false);bld(-55,-22,7,5,1,true);bld(0,65,8,7,1,false);bld(70,0,6,6,1,true);
+  // Kakteen mit Kollision
   [[-12,-14],[28,10],[-28,-10],[48,16],[-48,-16],[14,-35],[-14,35],[58,7],[-58,-7],[25,-25],[-25,25],[40,40],[-40,-40],[60,-30],[-60,30]].forEach(([x,z])=>{
     C(MAT.cactus,.18,.2,2.2,6,x,1.1,z);C(MAT.cactus,.1,.12,1,5,x+.45,1.4,z);C(MAT.cactus,.1,.12,1,5,x-.45,1.6,z);
+    WALLS.push({cx:x,cz:z,hw:.55,hd:.55});
   });
-  [[-18,25,1.2],[18,-25,.9],[-32,10,1.4],[32,-10,1.1],[50,30,1.3],[-50,-30,.9],[5,-55,1.5],[65,10,1.0]].forEach(([x,z,s])=>B(MAT.rock,s*1.4,s*.8,s*1.2,x,s*.4,z));
+  // Felsen mit Kollision
+  [[-18,25,1.2],[18,-25,.9],[-32,10,1.4],[32,-10,1.1],[50,30,1.3],[-50,-30,.9],[5,-55,1.5],[65,10,1.0]].forEach(([x,z,s])=>{
+    B(MAT.rock,s*1.4,s*.8,s*1.2,x,s*.4,z);
+    WALLS.push({cx:x,cz:z,hw:s*.75+.3,hd:s*.65+.3});
+  });
+  // Laternen mit Kollision
   [[-4,16],[4,16],[-4,-16],[4,-16],[-4,36],[4,36],[-4,-36],[4,-36],[16,4],[16,-4],[-16,4],[-16,-4],[36,4],[36,-4],[-36,4],[-36,-4],[52,4],[-52,4],[4,52],[-4,-52]].forEach(([x,z])=>{
     C(MAT.wood,.06,.08,3.2,5,x,1.6,z);
     const b=new THREE.Mesh(new THREE.SphereGeometry(.1,5,5),MAT.glow);b.position.set(x,3.1,z);scene.add(b);
+    WALLS.push({cx:x,cz:z,hw:.35,hd:.35});
   });
-  scene.add(new THREE.AmbientLight(0xffe0a0,2.2));
-  const sun=new THREE.DirectionalLight(0xfff0c0,1.3);sun.position.set(30,60,10);scene.add(sun);
+  scene.add(new THREE.AmbientLight(0xffe0a0,2.4));
+  const sun=new THREE.DirectionalLight(0xfff0c0,1.4);sun.position.set(30,60,10);scene.add(sun);
 }
 
 function mkChar(idx){
@@ -430,8 +441,7 @@ function killChar(ot){
   ot.g.children.filter(c=>c.isGroup).forEach(c=>c.visible=false);
   if(ot.corpse)ot.corpse.visible=true;if(ot.blood)ot.blood.visible=true;
   ot.g.rotation.z=Math.PI/2;
-  if(ot.label)ot.label.visible=false;
-  if(ot.tag){ot.tag.visible=false;ot.tag.material.opacity=0;}
+  if(ot.label)ot.label.visible=false;if(ot.tag)ot.tag.visible=false;
   ot.hasSheriff=false;
 }
 
@@ -454,7 +464,7 @@ function setupRoleHUD(){
   if(G.myRole==='murderer'){
     s1.classList.add('off');document.getElementById('gs1i').textContent='🗡️';
     s2.classList.remove('off');document.getElementById('gs2i').textContent='🛡️';
-    setTimeout(()=>{selSlot(0);},300);
+    setTimeout(()=>{selSlot(2);},300);
     startShieldTimer();
   } else if(G.myRole==='sheriff'){
     s1.classList.remove('off');document.getElementById('gs1i').textContent='🗡️';s2.classList.add('off');
@@ -481,7 +491,7 @@ function startShieldTimer(){
         G.shDropped=true;
         document.getElementById('gslot2').classList.add('off');
         document.getElementById('gslot1').classList.remove('off');
-        selSlot(0);
+        G.curSlot=0;document.querySelectorAll('.ghs').forEach((s,idx)=>s.classList.toggle('on',idx===0));
         if(myChar){setHandItem(myChar.hand,'');fbSetKnife(0);}
       }
     }
@@ -515,7 +525,7 @@ async function useItem(){
       document.getElementById('gshieldtimer').style.display='none';
       document.getElementById('gslot2').classList.add('off');
       document.getElementById('gslot1').classList.remove('off');
-      selSlot(0);
+      G.curSlot=0;document.querySelectorAll('.ghs').forEach((s,idx)=>s.classList.toggle('on',idx===0));
       setHandItem(myChar.hand,'');fbSetKnife(0);
       notif('🛡️ Schild versteckt! Messer freigeschaltet — jetzt töten!',2500);
     } else {
@@ -866,7 +876,7 @@ function startCD(l){
 
 function showRole(l){
   const RD={
-    murderer:{icon:'🗡️',label:'MÖRDER',desc:'Du trägst das Schild! Verstecke es irgendwo (Slot 3 wählen → E drücken) — innerhalb 60 Sekunden! Danach bekommst du dein Messer.'},
+    murderer:{icon:'🗡️',label:'MÖRDER',desc:'Verstecke das Schild (Slot 3 auswählen → E drücken) — du hast 60 Sekunden! Danach bekommst du dein Messer.'},
     innocent:{icon:'🕊️',label:'UNSCHULDIG',desc:'Der Mörder versteckt das Schild irgendwo auf der Karte. Finde es und drücke E — du wirst Sheriff und bekommst ein Messer!'}
   };
   const r=RD[G.myRole]||RD.innocent;
@@ -906,9 +916,15 @@ function enterWorld(l){
       });
       Object.keys(others).forEach(name=>{if(!ll.players.find(p=>p.name===name))killOther(name);});
       if(ll.shield?.dropped){
-        if(!G.shDropped){G.shDropped=true;onShieldDrop(ll.shield.x,ll.shield.z,ll.shield.fromDeath);}
+        if(!G.shDropped){
+          G.shDropped=true;onShieldDrop(ll.shield.x,ll.shield.z,ll.shield.fromDeath);
+        } else if(ll.shield.fromDeath&&G.myRole==='murderer'&&!shieldDropMesh){
+          // Sheriff ist gestorben — Mörder sieht das Schild am Todesort
+          onShieldDrop(ll.shield.x,ll.shield.z,true);
+        }
       }
-      if(ll.shield&&!ll.shield.dropped&&G.shDropped&&G.myRole!=='murderer'){onShieldPickedUp();}
+      // Schild aufgehoben: für ALLE entfernen (auch Mörder sieht es verschwinden)
+      if(ll.shield&&!ll.shield.dropped&&(G.shDropped||shieldDropMesh)){onShieldPickedUp();}
       if(ll.phase==='ended'){
         const mn=ll.players.find(p=>p.role==='murderer')?.name||'?';
         gameOver(ll.winner||'murderer',mn);
@@ -952,13 +968,15 @@ function onShieldDrop(x,z,fromSheriffDeath){
   G.shDropped=true;shieldDropPos={x,z};
   if(!shieldDropMesh){shieldDropMesh=mkShieldDropMesh(!!fromSheriffDeath);}
   shieldDropMesh.position.set(x,.1,z);
+  // Keine globale Nachricht – nur Unschuldige bekommen Hinweis, Mörder sieht Schild schweigend
   if(G.myRole==='innocent'){
-    notif('🛡️ Das Schild wurde irgendwo versteckt! Finde es und drücke E.',3500);
+    notif('🛡️ Das Schild liegt irgendwo auf der Karte. Finde es und drücke E.',3500);
   }
 }
 function onShieldPickedUp(){
+  // Für alle: Schild-Mesh entfernen
   if(shieldDropMesh){scene.remove(shieldDropMesh);shieldDropMesh=null;}
-  if(G.myRole!=='murderer')G.shDropped=false;
+  G.shDropped=false;
   shieldDropPos={x:0,z:0};
 }
 function onSelfKilled(msg){G.alive=false;showDead(msg||'Du wurdest ermordet.');}
