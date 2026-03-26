@@ -108,114 +108,70 @@ input[type=text]::placeholder{color:var(--gmuted);}
 #gnotif{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.92);border:1px solid var(--blood);color:#fff;padding:12px 32px;font-family:'Cinzel',serif;font-size:.95rem;letter-spacing:.1em;z-index:150;display:none;text-align:center;border-radius:2px;max-width:80vw;}
 #gkick-dialog{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:400;align-items:center;justify-content:center;}
 
-/* ── GAME LAUNCHER ── */
-#launcher-toggle{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:300;background:var(--blood);border:1px solid #5a0000;border-right:none;border-radius:6px 0 0 6px;width:36px;height:80px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .2s;}
-#launcher-toggle:hover{background:#a00000;}
-#launcher-toggle svg{transform:rotate(180deg);transition:transform .3s;}
-#launcher-toggle.open svg{transform:rotate(0deg);}
-#launcher-panel{position:fixed;right:-300px;top:50%;transform:translateY(-50%);z-index:299;width:270px;background:#0d0a07;border:1px solid var(--gborder);border-right:none;border-radius:8px 0 0 8px;padding:0 0 1rem 0;transition:right .35s cubic-bezier(.4,0,.2,1);max-height:90vh;overflow-y:auto;box-shadow:-6px 0 30px rgba(0,0,0,.7);}
-#launcher-panel.open{right:0;}
-#launcher-panel::before{content:'';display:block;height:2px;background:linear-gradient(90deg,transparent,var(--gold),var(--blood));border-radius:8px 0 0 0;margin-bottom:.8rem;}
-.lp-title{font-family:'Cinzel',serif;font-size:.7rem;letter-spacing:.3em;color:var(--gmuted);text-transform:uppercase;padding:.2rem 1.2rem .6rem;border-bottom:1px solid var(--gborder);}
-.lp-game{display:flex;align-items:center;gap:.9rem;padding:.75rem 1.2rem;cursor:pointer;border-bottom:1px solid rgba(42,34,24,.5);transition:background .15s;position:relative;text-decoration:none;}
-.lp-game:hover{background:rgba(255,255,255,.04);}
-.lp-game.active{background:rgba(139,0,0,.15);}
-.lp-game.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--blood);}
-.lp-icon{font-size:1.6rem;flex-shrink:0;width:36px;text-align:center;}
-.lp-info{flex:1;min-width:0;}
-.lp-name{font-family:'Cinzel',serif;font-size:.82rem;color:var(--gtext);letter-spacing:.05em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.lp-sub{font-size:.7rem;color:var(--gmuted);font-style:italic;margin-top:2px;}
-.lp-badge{font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;padding:2px 7px;border-radius:2px;flex-shrink:0;}
-.lp-badge.live{background:rgba(139,0,0,.3);border:1px solid var(--blood);color:#ff6666;}
-.lp-badge.soon{background:rgba(42,34,24,.6);border:1px solid var(--gborder);color:var(--gmuted);}
-.lp-section{padding:.5rem 1.2rem .2rem;font-family:'Cinzel',serif;font-size:.6rem;letter-spacing:.25em;color:#5a4a30;text-transform:uppercase;margin-top:.3rem;}
+/* ── GAME SQUARES ── */
+#game-squares{position:fixed;right:12px;top:50%;transform:translateY(-50%);z-index:300;display:flex;flex-direction:column;gap:8px;}
+.gsq{width:64px;height:64px;background:var(--gcard);border:1px solid var(--gborder);border-radius:4px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:border-color .15s,background .15s;position:relative;gap:3px;}
+.gsq:hover{border-color:var(--gold);background:#1a1510;}
+.gsq.current{border-color:var(--blood);background:rgba(139,0,0,.18);}
+.gsq-icon{font-size:1.5rem;line-height:1;}
+.gsq-label{font-family:'Cinzel',serif;font-size:.42rem;letter-spacing:.08em;text-transform:uppercase;color:var(--gmuted);text-align:center;line-height:1.2;padding:0 3px;}
+.gsq.current .gsq-label{color:var(--gold);}
+.gsq-dot{position:absolute;top:5px;right:5px;width:6px;height:6px;border-radius:50%;background:var(--blood);}
+.gsq.current .gsq-dot{background:#44ff44;}
 </style>
 </head>
 <body>
 
-<!-- GAME LAUNCHER -->
-<button id="launcher-toggle" title="Spiele" onclick="toggleLauncher()">
-  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <polyline points="9,2 4,7 9,12" stroke="#d4c9a8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-  </svg>
-</button>
-
-<div id="launcher-panel">
-  <div class="lp-title">🎮 Spielebibliothek</div>
-
-  <div class="lp-section">⭐ Dein Spiel</div>
-  <a class="lp-game active" href="javascript:void(0)" onclick="closeLauncher()">
-    <div class="lp-icon">🗡️</div>
-    <div class="lp-info">
-      <div class="lp-name">Murder Mystery</div>
-      <div class="lp-sub">3D · Multiplayer · Deduktion</div>
-    </div>
-    <span class="lp-badge live">LIVE</span>
-  </a>
-
-  <div class="lp-section">🕹️ 3D Multiplayer</div>
-
-  <a class="lp-game" href="javascript:void(0)" onclick="showComingSoon('Hide &amp; Seek 3D')">
-    <div class="lp-icon">🏃</div>
-    <div class="lp-info">
-      <div class="lp-name">Hide &amp; Seek 3D</div>
-      <div class="lp-sub">Versteck dich · Finde andere</div>
-    </div>
-    <span class="lp-badge soon">BALD</span>
-  </a>
-
-  <a class="lp-game" href="javascript:void(0)" onclick="showComingSoon('Bomben-Entschärfung')">
-    <div class="lp-icon">💣</div>
-    <div class="lp-info">
-      <div class="lp-name">Bomben-Entschärfung</div>
-      <div class="lp-sub">Team vs Team · Taktik</div>
-    </div>
-    <span class="lp-badge soon">BALD</span>
-  </a>
-
-  <a class="lp-game" href="javascript:void(0)" onclick="showComingSoon('Zombie Survival')">
-    <div class="lp-icon">🧟</div>
-    <div class="lp-info">
-      <div class="lp-name">Zombie Survival</div>
-      <div class="lp-sub">Überlebe die Horde · Co-op</div>
-    </div>
-    <span class="lp-badge soon">BALD</span>
-  </a>
-
-  <a class="lp-game" href="javascript:void(0)" onclick="showComingSoon('Last Man Standing')">
-    <div class="lp-icon">🏆</div>
-    <div class="lp-info">
-      <div class="lp-name">Last Man Standing</div>
-      <div class="lp-sub">Battle Royale Mini · Solo</div>
-    </div>
-    <span class="lp-badge soon">BALD</span>
-  </a>
+<!-- GAME SQUARES -->
+<div id="game-squares">
+  <div class="gsq current" onclick="goGame('murder')" title="Murder Mystery 3D">
+    <div class="gsq-dot"></div>
+    <div class="gsq-icon">🗡️</div>
+    <div class="gsq-label">Murder<br>Mystery</div>
+  </div>
+  <div class="gsq" onclick="goGame('hideseek')" title="Hide & Seek 3D">
+    <div class="gsq-dot"></div>
+    <div class="gsq-icon">🏃</div>
+    <div class="gsq-label">Hide &amp;<br>Seek</div>
+  </div>
+  <div class="gsq" onclick="goGame('bomb')" title="Bomben-Entschärfung">
+    <div class="gsq-dot"></div>
+    <div class="gsq-icon">💣</div>
+    <div class="gsq-label">Bomben-<br>Entsch.</div>
+  </div>
+  <div class="gsq" onclick="goGame('zombie')" title="Zombie Survival">
+    <div class="gsq-dot"></div>
+    <div class="gsq-icon">🧟</div>
+    <div class="gsq-label">Zombie<br>Survival</div>
+  </div>
+  <div class="gsq" onclick="goGame('lms')" title="Last Man Standing">
+    <div class="gsq-dot"></div>
+    <div class="gsq-icon">🏆</div>
+    <div class="gsq-label">Last Man<br>Standing</div>
+  </div>
 </div>
 
 <script>
-function toggleLauncher(){
-  const p=document.getElementById('launcher-panel');
-  const t=document.getElementById('launcher-toggle');
-  p.classList.toggle('open');
-  t.classList.toggle('open');
-}
-function closeLauncher(){
-  document.getElementById('launcher-panel').classList.remove('open');
-  document.getElementById('launcher-toggle').classList.remove('open');
-}
-function showComingSoon(name){
-  // Kurzer Toast
+const GAME_URLS={
+  murder: null, // diese Seite
+  hideseek: 'hideseek.html',
+  bomb: 'bomb.html',
+  zombie: 'zombie.html',
+  lms: 'lms.html'
+};
+function goGame(id){
+  if(id==='murder') return;
+  const url=GAME_URLS[id];
+  if(url){ window.location.href=url; return; }
+  // Coming Soon Toast
+  const names={hideseek:'Hide & Seek 3D',bomb:'Bomben-Entschärfung',zombie:'Zombie Survival',lms:'Last Man Standing'};
   const old=document.querySelector('.gtoast');if(old)old.remove();
   const t=document.createElement('div');
   t.className='gtoast';
-  t.innerHTML='⏳ <b>'+name+'</b> kommt bald!';
+  t.innerHTML='⏳ <b>'+names[id]+'</b> kommt bald!';
   document.body.appendChild(t);
   setTimeout(()=>t.remove(),3200);
 }
-// Launcher schließen wenn Spiel läuft
-document.addEventListener('pointerlockchange',()=>{
-  if(document.pointerLockElement) closeLauncher();
-});
 </script>
 
 <div class="gconn" id="gconn"><div class="gspinner"></div><div class="gconn-txt">VERBINDE…</div></div>
