@@ -464,7 +464,8 @@ function setupRoleHUD(){
   if(G.myRole==='murderer'){
     s1.classList.add('off');document.getElementById('gs1i').textContent='🗡️';
     s2.classList.remove('off');document.getElementById('gs2i').textContent='🛡️';
-    setTimeout(()=>{selSlot(2);},300);
+    // Start with fist (slot 0), shield available in slot 2
+    selSlot(0);
     startShieldTimer();
   } else if(G.myRole==='sheriff'){
     s1.classList.remove('off');document.getElementById('gs1i').textContent='🗡️';s2.classList.add('off');
@@ -489,7 +490,6 @@ function startShieldTimer(){
         notif('⚠️ Schild fliegt runter!',2000);
         fbDropShield(PP.x,PP.z);
         G.shDropped=true;
-        G.dropInvincible=true;setTimeout(()=>{G.dropInvincible=false;},2000);
         document.getElementById('gslot2').classList.add('off');
         document.getElementById('gslot1').classList.remove('off');
         if(myChar){selSlot(1);}else{G.curSlot=1;}
@@ -518,11 +518,8 @@ async function useItem(){
   if(!G.alive||!G.running)return;
   if(G.myRole==='murderer'){
     if(!G.shDropped){
-      if(G.curSlot!==2){notif('Slot 3 wählen (🛡️) um Schild zu droppen!',1500);return;}
       fbDropShield(PP.x,PP.z);
       G.shDropped=true;
-      G.dropInvincible=true;
-      setTimeout(()=>{G.dropInvincible=false;},2000);
       clearInterval(shieldTimerInterval);
       document.getElementById('gshieldtimer').style.display='none';
       document.getElementById('gslot2').classList.add('off');
@@ -530,7 +527,7 @@ async function useItem(){
       selSlot(1);
       notif('🛡️ Schild versteckt! Messer freigeschaltet — jetzt töten!',2500);
     } else {
-      if(G.curSlot!==1){notif('Slot 2 wählen (🗡️) um zu töten!',1000);return;}
+      if(G.curSlot!==1){notif('Messer (Slot 2) auswählen zum Töten!',1000);return;}
       const best=nearestAlive(2.6);
       if(best){flashRed();notif('🔪 '+best,1500);fbKill(best);}
       else notif('Niemand in Reichweite!',800);
@@ -747,10 +744,6 @@ function tickOthers(dt){
 async function fbKillMurderer(name){
   const l=await getL(G.code);if(!l)return;
   const ti=l.players.findIndex(p=>p.name===name);if(ti<0)return;
-  const target=l.players[ti];
-  if(target&&target.dropTime&&(Date.now()-target.dropTime)<2000){
-    notif('🛡️ Unverwundbar! Kurz nach dem Droppen.',1500);return;
-  }
   await updL(G.code,{[`players/${ti}/elim`]:1,phase:'ended',winner:'innocents'});
 }
 async function fbKill(name){
