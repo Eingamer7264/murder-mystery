@@ -492,8 +492,7 @@ function startShieldTimer(){
         G.dropInvincible=true;setTimeout(()=>{G.dropInvincible=false;},2000);
         document.getElementById('gslot2').classList.add('off');
         document.getElementById('gslot1').classList.remove('off');
-        G.curSlot=0;document.querySelectorAll('.ghs').forEach((s,idx)=>s.classList.toggle('on',idx===0));
-        if(myChar){setHandItem(myChar.hand,'');fbSetKnife(0);}
+        if(myChar){selSlot(1);}else{G.curSlot=1;}
       }
     }
   },1000);
@@ -528,8 +527,7 @@ async function useItem(){
       document.getElementById('gshieldtimer').style.display='none';
       document.getElementById('gslot2').classList.add('off');
       document.getElementById('gslot1').classList.remove('off');
-      G.curSlot=0;document.querySelectorAll('.ghs').forEach((s,idx)=>s.classList.toggle('on',idx===0));
-      setHandItem(myChar.hand,'');fbSetKnife(0);
+      selSlot(1);
       notif('🛡️ Schild versteckt! Messer freigeschaltet — jetzt töten!',2500);
     } else {
       if(G.curSlot!==1){notif('Slot 2 wählen (🗡️) um zu töten!',1000);return;}
